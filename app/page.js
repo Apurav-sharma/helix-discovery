@@ -1,6 +1,8 @@
 'use client'
 import React, { useState } from 'react';
 import { Activity, Beaker, Brain, Database, FileText, GitBranch, Home, Layout, Lock, Search, Settings, Upload, Zap } from 'lucide-react';
+import DataPage from './datapage/page';
+import ModelsPage from "./model_builder/page";
 
 // Main App Component with Router
 const HelixDiscovery = () => {
@@ -252,115 +254,115 @@ const DashboardPage = () => {
   );
 };
 
-// Models Page
-const ModelsPage = () => {
-  const [selectedType, setSelectedType] = useState('classification');
+// // Models Page
+// const ModelsPage = () => {
+//   const [selectedType, setSelectedType] = useState('classification');
 
-  return (
-    <div className="p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-white">Model Builder</h1>
-          <button className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-indigo-500/50 transition-all">
-            + Create New Model
-          </button>
-        </div>
+//   return (
+//     <div className="p-8">
+//       <div className="max-w-7xl mx-auto">
+//         <div className="flex justify-between items-center mb-8">
+//           <h1 className="text-4xl font-bold text-white">Model Builder</h1>
+//           <button className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-indigo-500/50 transition-all">
+//             + Create New Model
+//           </button>
+//         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Configuration Panel */}
-          <div className="lg:col-span-1 bg-slate-900/50 backdrop-blur-xl border border-indigo-500/20 rounded-2xl p-6">
-            <h3 className="text-xl font-semibold text-white mb-6">Model Configuration</h3>
+//         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+//           {/* Configuration Panel */}
+//           <div className="lg:col-span-1 bg-slate-900/50 backdrop-blur-xl border border-indigo-500/20 rounded-2xl p-6">
+//             <h3 className="text-xl font-semibold text-white mb-6">Model Configuration</h3>
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Model Type</label>
-                <select
-                  value={selectedType}
-                  onChange={(e) => setSelectedType(e.target.value)}
-                  className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500"
-                >
-                  <option value="classification">Classification</option>
-                  <option value="regression">Regression</option>
-                  <option value="transformer">Transformer</option>
-                  <option value="cnn">CNN</option>
-                </select>
-              </div>
+//             <div className="space-y-4">
+//               <div>
+//                 <label className="block text-sm font-medium text-slate-300 mb-2">Model Type</label>
+//                 <select
+//                   value={selectedType}
+//                   onChange={(e) => setSelectedType(e.target.value)}
+//                   className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500"
+//                 >
+//                   <option value="classification">Classification</option>
+//                   <option value="regression">Regression</option>
+//                   <option value="transformer">Transformer</option>
+//                   <option value="cnn">CNN</option>
+//                 </select>
+//               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Architecture</label>
-                <input
-                  type="text"
-                  placeholder="e.g., [64, 128, 1]"
-                  className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500"
-                />
-              </div>
+//               <div>
+//                 <label className="block text-sm font-medium text-slate-300 mb-2">Architecture</label>
+//                 <input
+//                   type="text"
+//                   placeholder="e.g., [64, 128, 1]"
+//                   className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500"
+//                 />
+//               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Activation Function</label>
-                <select className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500">
-                  <option>ReLU</option>
-                  <option>Sigmoid</option>
-                  <option>Tanh</option>
-                  <option>LeakyReLU</option>
-                </select>
-              </div>
+//               <div>
+//                 <label className="block text-sm font-medium text-slate-300 mb-2">Activation Function</label>
+//                 <select className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500">
+//                   <option>ReLU</option>
+//                   <option>Sigmoid</option>
+//                   <option>Tanh</option>
+//                   <option>LeakyReLU</option>
+//                 </select>
+//               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Optimizer</label>
-                <select className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500">
-                  <option>Adam</option>
-                  <option>SGD</option>
-                  <option>RMSprop</option>
-                  <option>AdaGrad</option>
-                </select>
-              </div>
+//               <div>
+//                 <label className="block text-sm font-medium text-slate-300 mb-2">Optimizer</label>
+//                 <select className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500">
+//                   <option>Adam</option>
+//                   <option>SGD</option>
+//                   <option>RMSprop</option>
+//                   <option>AdaGrad</option>
+//                 </select>
+//               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Learning Rate</label>
-                <input
-                  type="number"
-                  placeholder="0.001"
-                  step="0.0001"
-                  className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500"
-                />
-              </div>
+//               <div>
+//                 <label className="block text-sm font-medium text-slate-300 mb-2">Learning Rate</label>
+//                 <input
+//                   type="number"
+//                   placeholder="0.001"
+//                   step="0.0001"
+//                   className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500"
+//                 />
+//               </div>
 
-              <button className="w-full px-6 py-3 bg-indigo-600 rounded-lg text-white font-semibold hover:bg-indigo-700 transition-all">
-                Build Model
-              </button>
-            </div>
-          </div>
+//               <button className="w-full px-6 py-3 bg-indigo-600 rounded-lg text-white font-semibold hover:bg-indigo-700 transition-all">
+//                 Build Model
+//               </button>
+//             </div>
+//           </div>
 
-          {/* Visualization Panel */}
-          <div className="lg:col-span-2 bg-slate-900/50 backdrop-blur-xl border border-indigo-500/20 rounded-2xl p-6">
-            <h3 className="text-xl font-semibold text-white mb-6">Model Architecture Visualization</h3>
-            <div className="h-96 flex items-center justify-center border-2 border-dashed border-slate-700 rounded-lg">
-              <div className="text-center">
-                <Brain className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-                <p className="text-slate-500">Configure your model to see architecture visualization</p>
-              </div>
-            </div>
+//           {/* Visualization Panel */}
+//           <div className="lg:col-span-2 bg-slate-900/50 backdrop-blur-xl border border-indigo-500/20 rounded-2xl p-6">
+//             <h3 className="text-xl font-semibold text-white mb-6">Model Architecture Visualization</h3>
+//             <div className="h-96 flex items-center justify-center border-2 border-dashed border-slate-700 rounded-lg">
+//               <div className="text-center">
+//                 <Brain className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+//                 <p className="text-slate-500">Configure your model to see architecture visualization</p>
+//               </div>
+//             </div>
 
-            <div className="mt-6 grid grid-cols-3 gap-4">
-              <div className="bg-slate-800/50 rounded-lg p-4">
-                <p className="text-sm text-slate-400 mb-1">Total Parameters</p>
-                <p className="text-2xl font-bold text-white">0</p>
-              </div>
-              <div className="bg-slate-800/50 rounded-lg p-4">
-                <p className="text-sm text-slate-400 mb-1">Trainable Params</p>
-                <p className="text-2xl font-bold text-white">0</p>
-              </div>
-              <div className="bg-slate-800/50 rounded-lg p-4">
-                <p className="text-sm text-slate-400 mb-1">Model Size</p>
-                <p className="text-2xl font-bold text-white">0 MB</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+//             <div className="mt-6 grid grid-cols-3 gap-4">
+//               <div className="bg-slate-800/50 rounded-lg p-4">
+//                 <p className="text-sm text-slate-400 mb-1">Total Parameters</p>
+//                 <p className="text-2xl font-bold text-white">0</p>
+//               </div>
+//               <div className="bg-slate-800/50 rounded-lg p-4">
+//                 <p className="text-sm text-slate-400 mb-1">Trainable Params</p>
+//                 <p className="text-2xl font-bold text-white">0</p>
+//               </div>
+//               <div className="bg-slate-800/50 rounded-lg p-4">
+//                 <p className="text-sm text-slate-400 mb-1">Model Size</p>
+//                 <p className="text-2xl font-bold text-white">0 MB</p>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
 
 // Training Page
 const TrainingPage = () => {
@@ -566,149 +568,149 @@ const PipelinesPage = () => {
   );
 };
 
-// Data Page
-const DataPage = () => {
-  const datasets = [
-    { name: "Clinical Trial Dataset 2024", type: "CSV", size: "2.4 GB", records: "1.2M", status: "Active" },
-    { name: "Genomic Sequences (VCF)", type: "VCF", size: "5.7 GB", records: "450K", status: "Active" },
-    { name: "Drug Compound Library", type: "JSON", size: "890 MB", records: "87K", status: "Active" },
-    { name: "Medical Imaging (DICOM)", type: "DICOM", size: "12.3 GB", records: "34K", status: "Processing" },
-    { name: "Protein Structure Data", type: "Parquet", size: "3.2 GB", records: "560K", status: "Active" }
-  ];
+// // Data Page
+// const DataPage = () => {
+//   const datasets = [
+//     { name: "Clinical Trial Dataset 2024", type: "CSV", size: "2.4 GB", records: "1.2M", status: "Active" },
+//     { name: "Genomic Sequences (VCF)", type: "VCF", size: "5.7 GB", records: "450K", status: "Active" },
+//     { name: "Drug Compound Library", type: "JSON", size: "890 MB", records: "87K", status: "Active" },
+//     { name: "Medical Imaging (DICOM)", type: "DICOM", size: "12.3 GB", records: "34K", status: "Processing" },
+//     { name: "Protein Structure Data", type: "Parquet", size: "3.2 GB", records: "560K", status: "Active" }
+//   ];
 
-  return (
-    <div className="p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-white">Data Management</h1>
-          <button className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-indigo-500/50 transition-all">
-            + Upload Dataset
-          </button>
-        </div>
+//   return (
+//     <div className="p-8">
+//       <div className="max-w-7xl mx-auto">
+//         <div className="flex justify-between items-center mb-8">
+//           <h1 className="text-4xl font-bold text-white">Data Management</h1>
+//           <button className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-indigo-500/50 transition-all">
+//             + Upload Dataset
+//           </button>
+//         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gradient-to-br from-blue-600 to-cyan-600 rounded-2xl p-6">
-            <FileText className="w-8 h-8 text-white mb-3" />
-            <p className="text-blue-100 text-sm mb-1">Total Datasets</p>
-            <p className="text-3xl font-bold text-white">87</p>
-          </div>
-          <div className="bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl p-6">
-            <Database className="w-8 h-8 text-white mb-3" />
-            <p className="text-purple-100 text-sm mb-1">Total Storage</p>
-            <p className="text-3xl font-bold text-white">24.6 TB</p>
-          </div>
-          <div className="bg-gradient-to-br from-green-600 to-emerald-600 rounded-2xl p-6">
-            <Activity className="w-8 h-8 text-white mb-3" />
-            <p className="text-green-100 text-sm mb-1">Active Processes</p>
-            <p className="text-3xl font-bold text-white">12</p>
-          </div>
-          <div className="bg-gradient-to-br from-orange-600 to-red-600 rounded-2xl p-6">
-            <Lock className="w-8 h-8 text-white mb-3" />
-            <p className="text-orange-100 text-sm mb-1">Encrypted</p>
-            <p className="text-3xl font-bold text-white">100%</p>
-          </div>
-        </div>
+//         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+//           <div className="bg-gradient-to-br from-blue-600 to-cyan-600 rounded-2xl p-6">
+//             <FileText className="w-8 h-8 text-white mb-3" />
+//             <p className="text-blue-100 text-sm mb-1">Total Datasets</p>
+//             <p className="text-3xl font-bold text-white">87</p>
+//           </div>
+//           <div className="bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl p-6">
+//             <Database className="w-8 h-8 text-white mb-3" />
+//             <p className="text-purple-100 text-sm mb-1">Total Storage</p>
+//             <p className="text-3xl font-bold text-white">24.6 TB</p>
+//           </div>
+//           <div className="bg-gradient-to-br from-green-600 to-emerald-600 rounded-2xl p-6">
+//             <Activity className="w-8 h-8 text-white mb-3" />
+//             <p className="text-green-100 text-sm mb-1">Active Processes</p>
+//             <p className="text-3xl font-bold text-white">12</p>
+//           </div>
+//           <div className="bg-gradient-to-br from-orange-600 to-red-600 rounded-2xl p-6">
+//             <Lock className="w-8 h-8 text-white mb-3" />
+//             <p className="text-orange-100 text-sm mb-1">Encrypted</p>
+//             <p className="text-3xl font-bold text-white">100%</p>
+//           </div>
+//         </div>
 
-        <div className="bg-slate-900/50 backdrop-blur-xl border border-indigo-500/20 rounded-2xl overflow-hidden">
-          <div className="p-6 border-b border-slate-800">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xl font-semibold text-white">Datasets</h3>
-              <div className="flex space-x-3">
-                <input
-                  type="text"
-                  placeholder="Search datasets..."
-                  className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-                />
-                <select className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500">
-                  <option>All Types</option>
-                  <option>CSV</option>
-                  <option>JSON</option>
-                  <option>VCF</option>
-                  <option>DICOM</option>
-                </select>
-              </div>
-            </div>
-          </div>
+//         <div className="bg-slate-900/50 backdrop-blur-xl border border-indigo-500/20 rounded-2xl overflow-hidden">
+//           <div className="p-6 border-b border-slate-800">
+//             <div className="flex items-center justify-between">
+//               <h3 className="text-xl font-semibold text-white">Datasets</h3>
+//               <div className="flex space-x-3">
+//                 <input
+//                   type="text"
+//                   placeholder="Search datasets..."
+//                   className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+//                 />
+//                 <select className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500">
+//                   <option>All Types</option>
+//                   <option>CSV</option>
+//                   <option>JSON</option>
+//                   <option>VCF</option>
+//                   <option>DICOM</option>
+//                 </select>
+//               </div>
+//             </div>
+//           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-800/50">
-                <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Dataset Name</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Type</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Size</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Records</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Status</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800">
-                {datasets.map((dataset, idx) => (
-                  <tr key={idx} className="hover:bg-slate-800/30 transition-colors">
-                    <td className="px-6 py-4 text-white">{dataset.name}</td>
-                    <td className="px-6 py-4">
-                      <span className="px-3 py-1 bg-indigo-500/20 border border-indigo-500/50 rounded-full text-xs text-indigo-400">
-                        {dataset.type}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-slate-300">{dataset.size}</td>
-                    <td className="px-6 py-4 text-slate-300">{dataset.records}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs ${dataset.status === 'Active'
-                          ? 'bg-green-500/20 border border-green-500/50 text-green-400'
-                          : 'bg-yellow-500/20 border border-yellow-500/50 text-yellow-400'
-                        }`}>
-                        {dataset.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <button className="text-indigo-400 hover:text-indigo-300 text-sm font-medium">
-                        View Details
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+//           <div className="overflow-x-auto">
+//             <table className="w-full">
+//               <thead className="bg-slate-800/50">
+//                 <tr>
+//                   <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Dataset Name</th>
+//                   <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Type</th>
+//                   <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Size</th>
+//                   <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Records</th>
+//                   <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Status</th>
+//                   <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Actions</th>
+//                 </tr>
+//               </thead>
+//               <tbody className="divide-y divide-slate-800">
+//                 {datasets.map((dataset, idx) => (
+//                   <tr key={idx} className="hover:bg-slate-800/30 transition-colors">
+//                     <td className="px-6 py-4 text-white">{dataset.name}</td>
+//                     <td className="px-6 py-4">
+//                       <span className="px-3 py-1 bg-indigo-500/20 border border-indigo-500/50 rounded-full text-xs text-indigo-400">
+//                         {dataset.type}
+//                       </span>
+//                     </td>
+//                     <td className="px-6 py-4 text-slate-300">{dataset.size}</td>
+//                     <td className="px-6 py-4 text-slate-300">{dataset.records}</td>
+//                     <td className="px-6 py-4">
+//                       <span className={`px-3 py-1 rounded-full text-xs ${dataset.status === 'Active'
+//                           ? 'bg-green-500/20 border border-green-500/50 text-green-400'
+//                           : 'bg-yellow-500/20 border border-yellow-500/50 text-yellow-400'
+//                         }`}>
+//                         {dataset.status}
+//                       </span>
+//                     </td>
+//                     <td className="px-6 py-4">
+//                       <button className="text-indigo-400 hover:text-indigo-300 text-sm font-medium">
+//                         View Details
+//                       </button>
+//                     </td>
+//                   </tr>
+//                 ))}
+//               </tbody>
+//             </table>
+//           </div>
+//         </div>
 
-        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-slate-900/50 backdrop-blur-xl border border-indigo-500/20 rounded-2xl p-6">
-            <h3 className="text-xl font-semibold text-white mb-4">Data Governance</h3>
-            <div className="space-y-3">
-              <GovernanceItem icon={Lock} label="AES-256 Encryption" status="Enabled" />
-              <GovernanceItem icon={FileText} label="FHIR Compliance" status="Enabled" />
-              <GovernanceItem icon={Activity} label="Audit Logging" status="Active" />
-              <GovernanceItem icon={Lock} label="HIPAA Compliance" status="Certified" />
-            </div>
-          </div>
+//         <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+//           <div className="bg-slate-900/50 backdrop-blur-xl border border-indigo-500/20 rounded-2xl p-6">
+//             <h3 className="text-xl font-semibold text-white mb-4">Data Governance</h3>
+//             <div className="space-y-3">
+//               <GovernanceItem icon={Lock} label="AES-256 Encryption" status="Enabled" />
+//               <GovernanceItem icon={FileText} label="FHIR Compliance" status="Enabled" />
+//               <GovernanceItem icon={Activity} label="Audit Logging" status="Active" />
+//               <GovernanceItem icon={Lock} label="HIPAA Compliance" status="Certified" />
+//             </div>
+//           </div>
 
-          <div className="bg-slate-900/50 backdrop-blur-xl border border-indigo-500/20 rounded-2xl p-6">
-            <h3 className="text-xl font-semibold text-white mb-4">Recent Activity</h3>
-            <div className="space-y-3">
-              <ActivityItem
-                action="Dataset uploaded"
-                item="Clinical Trial Dataset 2024"
-                time="2 hours ago"
-              />
-              <ActivityItem
-                action="Pipeline completed"
-                item="Genomic Analysis Workflow"
-                time="5 hours ago"
-              />
-              <ActivityItem
-                action="Model trained"
-                item="Drug-Target Interaction v2"
-                time="1 day ago"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+//           <div className="bg-slate-900/50 backdrop-blur-xl border border-indigo-500/20 rounded-2xl p-6">
+//             <h3 className="text-xl font-semibold text-white mb-4">Recent Activity</h3>
+//             <div className="space-y-3">
+//               <ActivityItem
+//                 action="Dataset uploaded"
+//                 item="Clinical Trial Dataset 2024"
+//                 time="2 hours ago"
+//               />
+//               <ActivityItem
+//                 action="Pipeline completed"
+//                 item="Genomic Analysis Workflow"
+//                 time="5 hours ago"
+//               />
+//               <ActivityItem
+//                 action="Model trained"
+//                 item="Drug-Target Interaction v2"
+//                 time="1 day ago"
+//               />
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
 
 // Settings Page
 const SettingsPage = () => {

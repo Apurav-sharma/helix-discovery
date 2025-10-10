@@ -1,0 +1,2 @@
+unique_ingredient,Calories,Protein,Carbohydrates,Total Fat,Saturated Fat,Sodium,Cholesterol,serving_size_numeric,quantity,source,confidence
+paneer,299,18.09,2.98,23.82,12.94,751,69,100,100,Nutritionix API,high
