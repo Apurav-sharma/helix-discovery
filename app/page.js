@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Activity, Beaker, Brain, Database, FileText, GitBranch, Home, Layout, Lock, Search, Settings, Upload, Zap } from 'lucide-react';
 import DataPage from './datapage/page';
 import ModelsPage from "./model_builder/page";
+import TrainingPage from './training_page/page';
 
 // Main App Component with Router
 const HelixDiscovery = () => {
@@ -61,7 +62,7 @@ const Sidebar = ({ currentPage, setCurrentPage, isOpen, toggleSidebar }) => {
           <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
             <Beaker className="w-6 h-6 text-white" />
           </div>
-          {isOpen && <span className="text-xl font-bold text-white">Helix Discovery™</span>}
+          {isOpen && <span className="text-xl font-bold text-white">Helix Horizon</span>}
         </div>
 
         <nav className="space-y-2">
@@ -140,7 +141,7 @@ const HomePage = () => {
             Accelerate Drug Discovery with AI
           </h1>
           <p className="text-xl text-slate-300 mb-8 max-w-3xl mx-auto">
-            Helix Discovery™ provides researchers with advanced machine learning tools,
+            Helix Horizon provides researchers with advanced machine learning tools,
             pre-trained biomedical models, and automated pipelines to revolutionize pharmaceutical development.
           </p>
           <div className="flex justify-center space-x-4">
@@ -365,96 +366,101 @@ const DashboardPage = () => {
 // };
 
 // Training Page
-const TrainingPage = () => {
-  return (
-    <div className="p-8">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold text-white mb-8">Training Interface</h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <div className="bg-slate-900/50 backdrop-blur-xl border border-indigo-500/20 rounded-2xl p-6">
-            <h3 className="text-xl font-semibold text-white mb-6">Dataset Upload</h3>
-            <div className="border-2 border-dashed border-slate-700 rounded-lg p-12 text-center hover:border-indigo-500 transition-all cursor-pointer">
-              <Upload className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-              <p className="text-slate-400 mb-2">Drop your dataset here or click to browse</p>
-              <p className="text-sm text-slate-500">Supported: CSV, JSON, Parquet, VCF, FASTQ</p>
-            </div>
 
-            <div className="mt-6 space-y-3">
-              <div className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <FileText className="w-5 h-5 text-blue-400" />
-                  <span className="text-white">clinical_data.csv</span>
-                </div>
-                <span className="text-sm text-slate-400">2.4 MB</span>
-              </div>
-            </div>
-          </div>
+// const TrainingPage = () => {
+//   return (
+//     <div className="p-8">
+//       <div className="max-w-7xl mx-auto">
+//         <h1 className="text-4xl font-bold text-white mb-8">Training Interface</h1>
 
-          <div className="bg-slate-900/50 backdrop-blur-xl border border-indigo-500/20 rounded-2xl p-6">
-            <h3 className="text-xl font-semibold text-white mb-6">Training Configuration</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Epochs</label>
-                <input type="number" defaultValue={100} className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Batch Size</label>
-                <input type="number" defaultValue={32} className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Validation Split</label>
-                <input type="number" defaultValue={0.2} step={0.1} className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500" />
-              </div>
-              <div>
-                <label className="flex items-center space-x-2 text-slate-300">
-                  <input type="checkbox" className="rounded" />
-                  <span className="text-sm">Enable GPU Acceleration</span>
-                </label>
-              </div>
-              <button className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-green-500/50 transition-all">
-                Start Training
-              </button>
-            </div>
-          </div>
-        </div>
+//         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+//           <div className="bg-slate-900/50 backdrop-blur-xl border border-indigo-500/20 rounded-2xl p-6">
+//             <h3 className="text-xl font-semibold text-white mb-6">Dataset Upload</h3>
+//             <div className="border-2 border-dashed border-slate-700 rounded-lg p-12 text-center hover:border-indigo-500 transition-all cursor-pointer">
+//               <Upload className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+//               <p className="text-slate-400 mb-2">Drop your dataset here or click to browse</p>
+//               <p className="text-sm text-slate-500">Supported: CSV, JSON, Parquet, VCF, FASTQ</p>
+//             </div>
 
-        <div className="bg-slate-900/50 backdrop-blur-xl border border-indigo-500/20 rounded-2xl p-6">
-          <h3 className="text-xl font-semibold text-white mb-6">Training Progress</h3>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-slate-300">Epoch 47 / 100</span>
-              <span className="text-indigo-400 font-semibold">47%</span>
-            </div>
-            <div className="w-full bg-slate-800 rounded-full h-3">
-              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 h-3 rounded-full" style={{ width: '47%' }}></div>
-            </div>
-            <div className="grid grid-cols-4 gap-4 mt-6">
-              <div className="bg-slate-800/50 rounded-lg p-3">
-                <p className="text-sm text-slate-400">Loss</p>
-                <p className="text-xl font-bold text-white">0.234</p>
-              </div>
-              <div className="bg-slate-800/50 rounded-lg p-3">
-                <p className="text-sm text-slate-400">Accuracy</p>
-                <p className="text-xl font-bold text-white">94.2%</p>
-              </div>
-              <div className="bg-slate-800/50 rounded-lg p-3">
-                <p className="text-sm text-slate-400">Val Loss</p>
-                <p className="text-xl font-bold text-white">0.298</p>
-              </div>
-              <div className="bg-slate-800/50 rounded-lg p-3">
-                <p className="text-sm text-slate-400">Val Accuracy</p>
-                <p className="text-xl font-bold text-white">91.8%</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+//             <div className="mt-6 space-y-3">
+//               <div className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg">
+//                 <div className="flex items-center space-x-3">
+//                   <FileText className="w-5 h-5 text-blue-400" />
+//                   <span className="text-white">clinical_data.csv</span>
+//                 </div>
+//                 <span className="text-sm text-slate-400">2.4 MB</span>
+//               </div>
+//             </div>
+//           </div>
+
+//           <div className="bg-slate-900/50 backdrop-blur-xl border border-indigo-500/20 rounded-2xl p-6">
+//             <h3 className="text-xl font-semibold text-white mb-6">Training Configuration</h3>
+//             <div className="space-y-4">
+//               <div>
+//                 <label className="block text-sm font-medium text-slate-300 mb-2">Epochs</label>
+//                 <input type="number" defaultValue={100} className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500" />
+//               </div>
+//               <div>
+//                 <label className="block text-sm font-medium text-slate-300 mb-2">Batch Size</label>
+//                 <input type="number" defaultValue={32} className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500" />
+//               </div>
+//               <div>
+//                 <label className="block text-sm font-medium text-slate-300 mb-2">Validation Split</label>
+//                 <input type="number" defaultValue={0.2} step={0.1} className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500" />
+//               </div>
+//               <div>
+//                 <label className="flex items-center space-x-2 text-slate-300">
+//                   <input type="checkbox" className="rounded" />
+//                   <span className="text-sm">Enable GPU Acceleration</span>
+//                 </label>
+//               </div>
+//               <button className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-green-500/50 transition-all">
+//                 Start Training
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+
+//         <div className="bg-slate-900/50 backdrop-blur-xl border border-indigo-500/20 rounded-2xl p-6">
+//           <h3 className="text-xl font-semibold text-white mb-6">Training Progress</h3>
+//           <div className="space-y-4">
+//             <div className="flex justify-between items-center">
+//               <span className="text-slate-300">Epoch 47 / 100</span>
+//               <span className="text-indigo-400 font-semibold">47%</span>
+//             </div>
+//             <div className="w-full bg-slate-800 rounded-full h-3">
+//               <div className="bg-gradient-to-r from-indigo-600 to-purple-600 h-3 rounded-full" style={{ width: '47%' }}></div>
+//             </div>
+//             <div className="grid grid-cols-4 gap-4 mt-6">
+//               <div className="bg-slate-800/50 rounded-lg p-3">
+//                 <p className="text-sm text-slate-400">Loss</p>
+//                 <p className="text-xl font-bold text-white">0.234</p>
+//               </div>
+//               <div className="bg-slate-800/50 rounded-lg p-3">
+//                 <p className="text-sm text-slate-400">Accuracy</p>
+//                 <p className="text-xl font-bold text-white">94.2%</p>
+//               </div>
+//               <div className="bg-slate-800/50 rounded-lg p-3">
+//                 <p className="text-sm text-slate-400">Val Loss</p>
+//                 <p className="text-xl font-bold text-white">0.298</p>
+//               </div>
+//               <div className="bg-slate-800/50 rounded-lg p-3">
+//                 <p className="text-sm text-slate-400">Val Accuracy</p>
+//                 <p className="text-xl font-bold text-white">91.8%</p>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
 
 // Library Page
+
+
 const LibraryPage = () => {
   const models = [
     { name: "Protein Folding Predictor", domain: "Structural Biology", accuracy: "96.4%", format: "ONNX" },
@@ -713,6 +719,8 @@ const PipelinesPage = () => {
 // };
 
 // Settings Page
+
+
 const SettingsPage = () => {
   return (
     <div className="p-8">
