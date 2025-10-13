@@ -6,7 +6,7 @@ export async function GET(request, { params }) {
         const { modelId } = params;
 
         // Forward to Python service
-        const response = await fetch(`http://localhost:8000/models/${modelId}`);
+        const response = await fetch(`https://helix-discovery-2.onrender.com/models/${modelId}`);
         const data = await response.json();
 
         return NextResponse.json(data);
