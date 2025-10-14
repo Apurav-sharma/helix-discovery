@@ -27,7 +27,7 @@ const TrainingPage = () => {
                 if (data.success) {
                     setProgress(data.data);
 
-                    console.log(data.data);
+                    // console.log(data.data);
 
                     // Stop polling if completed or failed
                     if (data.data.status === 'completed' || data.data.status === 'failed') {
@@ -86,7 +86,7 @@ const TrainingPage = () => {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    datasetId: uploadedDataset.id,
+                    datasetId: uploadedDataset._id,
                     ...config
                 })
             });
@@ -246,20 +246,20 @@ const TrainingPage = () => {
                             </div>
                             <div className="grid grid-cols-4 gap-4 mt-6">
                                 <div className="bg-slate-800/50 rounded-lg p-3">
-                                    <p className="text-sm text-slate-400">Loss</p>
-                                    <p className="text-xl font-bold text-white">{progress.metrics?.loss || '0.000'}</p>
+                                    <p className="text-sm text-slate-400">train mae</p>
+                                    <p className="text-xl font-bold text-white">{progress.metrics?.train_mae || '0.000'}</p>
                                 </div>
                                 <div className="bg-slate-800/50 rounded-lg p-3">
-                                    <p className="text-sm text-slate-400">Accuracy</p>
-                                    <p className="text-xl font-bold text-white">{progress.metrics?.accuracy || '0.0'}%</p>
+                                    <p className="text-sm text-slate-400">train mse</p>
+                                    <p className="text-xl font-bold text-white">{progress.metrics?.train_mse || '0.0'}</p>
                                 </div>
                                 <div className="bg-slate-800/50 rounded-lg p-3">
-                                    <p className="text-sm text-slate-400">Val Loss</p>
-                                    <p className="text-xl font-bold text-white">{progress.metrics?.val_loss || '0.000'}</p>
+                                    <p className="text-sm text-slate-400">val mae</p>
+                                    <p className="text-xl font-bold text-white">{progress.metrics?.val_mae || '0.000'}</p>
                                 </div>
                                 <div className="bg-slate-800/50 rounded-lg p-3">
-                                    <p className="text-sm text-slate-400">Val Accuracy</p>
-                                    <p className="text-xl font-bold text-white">{progress.metrics?.val_accuracy || '0.0'}%</p>
+                                    <p className="text-sm text-slate-400">val mse</p>
+                                    <p className="text-xl font-bold text-white">{progress.metrics?.val_mse || '0.0'}</p>
                                 </div>
                             </div>
                         </div>

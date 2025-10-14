@@ -27,6 +27,7 @@ const DataPage = () => {
 
             if (result.success) {
                 setDatasets(result.data);
+                console.log(result.data);
             }
         } catch (error) {
             console.error('Error fetching datasets:', error);
@@ -232,7 +233,7 @@ const DataPage = () => {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <button
-                                                    onClick={() => handleDeleteDataset(dataset.id)}
+                                                    onClick={() => handleDeleteDataset(dataset._id)}
                                                     className="text-red-400 hover:text-red-300 text-sm font-medium mr-4"
                                                 >
                                                     Delete

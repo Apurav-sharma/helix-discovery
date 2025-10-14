@@ -14,17 +14,23 @@ from datetime import datetime
 import asyncio
 import os
 import json
+import httpx
+import io
 
 app = FastAPI()
 
 # CORS middleware
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["http://localhost:3000"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Update with your frontend URL in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Vercel Blob Configuration
+VERCEL_BLOB_TOKEN = os.getenv("BLOB_READ_WRITE_TOKEN", "vercel_blob_rw_SXUrwYO7V6TocBtE_6BIQAIPkVpJkcHquIpNHYlIZkV5zL0")
+VERCEL_BLOB_API = "https://blob.vercel-storage.com"
 
 # Store active training jobs
 active_jobs = {}
@@ -33,6 +39,7 @@ job_progress = {}
 # Training Configuration Model
 class TrainingConfig(BaseModel):
     dataset_id: str
+    dataset_url: str  # Vercel Blob URL
     epochs: int = 100
     batch_size: int = 32
     validation_split: float = 0.2
@@ -40,7 +47,6 @@ class TrainingConfig(BaseModel):
     learning_rate: float = 0.001
 
 # Simple PyTorch Model
-
 class SimpleNN(nn.Module):
     def __init__(self, input_size, hidden_size=64, output_size=1):
         super(SimpleNN, self).__init__()
@@ -50,12 +56,76 @@ class SimpleNN(nn.Module):
             nn.ReLU(),
             nn.Linear(hidden_size, hidden_size),
             nn.ReLU(),
-            nn.Linear(hidden_size, output_size)  # No sigmoid for regression
+            nn.Linear(hidden_size, output_size)
         )
 
     def forward(self, x):
         return self.network(x)
-    
+
+
+async def upload_to_vercel_blob(file_content: bytes, filename: str) -> dict:
+    """Upload file to Vercel Blob Storage"""
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.put(
+                f"{VERCEL_BLOB_API}/{filename}",
+                content=file_content,
+                headers={
+                    "Authorization": f"Bearer {VERCEL_BLOB_TOKEN}",
+                    "x-content-type": "text/csv",
+                },
+                params={
+                    "access": "public"
+                },
+                timeout=60.0
+            )
+            
+            if response.status_code == 200:
+                return response.json()
+            else:
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Blob upload failed: {response.text}"
+                )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Upload error: {str(e)}")
+
+
+async def download_from_vercel_blob(blob_url: str) -> bytes:
+    """Download file from Vercel Blob Storage"""
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(blob_url, timeout=60.0)
+            
+            if response.status_code == 200:
+                return response.content
+            else:
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Blob download failed: {response.text}"
+                )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Download error: {str(e)}")
+
+
+async def delete_from_vercel_blob(blob_url: str):
+    """Delete file from Vercel Blob Storage"""
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.delete(
+                f"{VERCEL_BLOB_API}/delete",
+                json={"url": blob_url},
+                headers={
+                    "Authorization": f"Bearer {VERCEL_BLOB_TOKEN}",
+                },
+                timeout=30.0
+            )
+            
+            return response.status_code == 200
+    except Exception as e:
+        print(f"Delete error: {str(e)}")
+        return False
+
 
 @app.post("/upload")
 async def upload_dataset(file: UploadFile = File(...)):
@@ -65,18 +135,13 @@ async def upload_dataset(file: UploadFile = File(...)):
         
         # Generate dataset ID
         dataset_id = f"dataset_{uuid.uuid4().hex[:8]}"
+        filename = f"datasets/{dataset_id}_{file.filename}"
         
-        # Save file temporarily (in production, save to disk/S3)
-        os.makedirs("tmp", exist_ok=True)
+        # Upload to Vercel Blob
+        blob_response = await upload_to_vercel_blob(contents, filename)
         
-        # Save file locally
-        file_path = os.path.join("tmp", f"{dataset_id}.csv")
-        with open(file_path, "wb") as f:
-            f.write(contents)
-        
-        # Read and show dataset
-        df = pd.read_csv(file_path)
-        # print(df.head())
+        # Read dataset info
+        df = pd.read_csv(io.BytesIO(contents))
         
         return {
             "success": True,
@@ -86,11 +151,13 @@ async def upload_dataset(file: UploadFile = File(...)):
                 "size": len(contents),
                 "records": len(df),
                 "columns": list(df.columns),
+                "blobUrl": blob_response.get("url"),
                 "uploadedAt": datetime.now().isoformat()
             }
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/train")
 async def start_training(config: TrainingConfig):
@@ -130,15 +197,15 @@ async def start_training(config: TrainingConfig):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 async def train_model(job_id: str, config: TrainingConfig):
     try:
-        # Resolve dataset path safely (relative "tmp" directory)
-        file_path = os.path.join("tmp", f"{config.dataset_id}.csv")
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(f"Dataset file not found: {file_path}")
-
+        # Download dataset from Vercel Blob
+        dataset_content = await download_from_vercel_blob(config.dataset_url)
+        
         # Load dataset
-        df = pd.read_csv(file_path)
+        df = pd.read_csv(io.BytesIO(dataset_content))
+        print(df.head())
 
         # Basic sanity checks
         if df.shape[0] == 0:
@@ -178,7 +245,7 @@ async def train_model(job_id: str, config: TrainingConfig):
         # Initialize model and device
         input_dim = X.shape[1]
         device = torch.device("cuda" if (config.gpu_enabled and torch.cuda.is_available()) else "cpu")
-        model = SimpleNN(input_size=input_dim).to(device)  # ensure SimpleNN returns raw regression outputs (no final activation)
+        model = SimpleNN(input_size=input_dim).to(device)
 
         # Regression loss and optimizer
         criterion = nn.MSELoss()
@@ -187,7 +254,7 @@ async def train_model(job_id: str, config: TrainingConfig):
         # Training loop
         for epoch in range(int(config.epochs)):
             model.train()
-            train_loss_sum = 0.0  # sum of mse * batch_size
+            train_loss_sum = 0.0
             train_mae_sum = 0.0
             total_samples = 0
 
@@ -198,7 +265,6 @@ async def train_model(job_id: str, config: TrainingConfig):
                 optimizer.zero_grad()
                 outputs = model(batch_X)
 
-                # Normalize shapes to (N,1)
                 if outputs.dim() == 1:
                     outputs = outputs.unsqueeze(1)
                 if batch_y.dim() == 1:
@@ -213,7 +279,6 @@ async def train_model(job_id: str, config: TrainingConfig):
                 train_mae_sum += torch.abs(outputs - batch_y).sum().item()
                 total_samples += bsize
 
-            # Compute average training metrics
             avg_train_mse = train_loss_sum / total_samples if total_samples > 0 else 0.0
             avg_train_mae = train_mae_sum / total_samples if total_samples > 0 else 0.0
 
@@ -248,9 +313,7 @@ async def train_model(job_id: str, config: TrainingConfig):
                 val_mse = val_loss_sum / val_total if val_total > 0 else 0.0
                 val_mae = val_mae_sum / val_total if val_total > 0 else 0.0
 
-                # Compute R^2 on validation set: 1 - SSE/SST
                 all_targets = torch.cat(all_targets, dim=0).numpy().reshape(-1)
-                # Re-run predictions on full val set on CPU to compute SST/SSE robustly
                 preds = []
                 with torch.no_grad():
                     for vX, _ in val_loader:
@@ -261,7 +324,6 @@ async def train_model(job_id: str, config: TrainingConfig):
                         preds.append(p.cpu())
                 preds = torch.cat(preds, dim=0).numpy().reshape(-1)
 
-                # handle constant target case
                 sse = float(((all_targets - preds) ** 2).sum())
                 sst = float(((all_targets - all_targets.mean()) ** 2).sum())
                 val_r2 = 1.0 - (sse / sst) if sst != 0 else float("nan")
@@ -280,21 +342,24 @@ async def train_model(job_id: str, config: TrainingConfig):
                 }
             }
 
-            # allow other tasks to run
             await asyncio.sleep(0.01)
 
         # Mark as completed
         active_jobs[job_id]["status"] = "completed"
         active_jobs[job_id]["completed_at"] = datetime.now().isoformat()
 
-        # Save model
-        save_dir = "models"
-        os.makedirs(save_dir, exist_ok=True)
-        model_path = os.path.join(save_dir, f"{job_id}_model.pth")
-        torch.save(model.state_dict(), model_path)
-        active_jobs[job_id]["model_path"] = model_path
+        # Save model to memory buffer
+        model_buffer = io.BytesIO()
+        torch.save(model.state_dict(), model_buffer)
+        model_buffer.seek(0)
+        
+        # Upload model to Vercel Blob
+        model_filename = f"models/{job_id}_model.pth"
+        model_blob = await upload_to_vercel_blob(model_buffer.getvalue(), model_filename)
+        
+        active_jobs[job_id]["model_url"] = model_blob.get("url")
 
-        return {"status": "ok", "model_path": model_path}
+        return {"status": "ok", "model_url": model_blob.get("url")}
 
     except Exception as e:
         active_jobs.setdefault(job_id, {})
@@ -316,6 +381,7 @@ async def get_progress(job_id: str):
             **job_progress[job_id]
         }
     }
+
 
 @app.get("/jobs")
 async def get_all_jobs():
@@ -343,7 +409,7 @@ class ModelConfig(BaseModel):
     optimizer: str
     learning_rate: float
 
-# Activation functions mapping
+
 ACTIVATION_FUNCTIONS = {
     'ReLU': nn.ReLU,
     'Sigmoid': nn.Sigmoid,
@@ -351,36 +417,32 @@ ACTIVATION_FUNCTIONS = {
     'LeakyReLU': nn.LeakyReLU
 }
 
+
 def parse_architecture(arch_string):
-    """Parse architecture string like '[64, 128, 1]' into list"""
     try:
         return json.loads(arch_string)
     except:
         raise ValueError("Invalid architecture format. Use format: [64, 128, 1]")
 
+
 def create_model(config: ModelConfig):
-    """Create PyTorch model based on configuration"""
     arch_layers = parse_architecture(config.architecture)
-    
+
     if config.model_type == 'classification' or config.model_type == 'regression':
-        # Create Sequential model
         layers = []
         for i in range(len(arch_layers) - 1):
             layers.append(nn.Linear(arch_layers[i], arch_layers[i + 1]))
             
-            # Add activation function (except for last layer)
             if i < len(arch_layers) - 2:
                 activation = ACTIVATION_FUNCTIONS.get(config.activation_function, nn.ReLU)
                 layers.append(activation())
         
-        # Add output activation based on model type
         if config.model_type == 'classification':
             layers.append(nn.Sigmoid())
         
         model = nn.Sequential(*layers)
         
     elif config.model_type == 'cnn':
-        # Simple CNN architecture
         model = nn.Sequential(
             nn.Conv2d(3, 32, kernel_size=3, padding=1),
             ACTIVATION_FUNCTIONS.get(config.activation_function, nn.ReLU)(),
@@ -395,7 +457,6 @@ def create_model(config: ModelConfig):
         )
         
     elif config.model_type == 'transformer':
-        # Simple transformer-like model
         model = nn.Sequential(
             nn.Linear(arch_layers[0], arch_layers[1] if len(arch_layers) > 1 else 256),
             ACTIVATION_FUNCTIONS.get(config.activation_function, nn.ReLU)(),
@@ -404,12 +465,11 @@ def create_model(config: ModelConfig):
     
     return model
 
+
 def calculate_model_metrics(model):
-    """Calculate model parameters and size"""
     total_params = sum(p.numel() for p in model.parameters())
     trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     
-    # Calculate model size in MB
     param_size = sum(p.nelement() * p.element_size() for p in model.parameters())
     buffer_size = sum(b.nelement() * b.element_size() for b in model.buffers())
     size_mb = (param_size + buffer_size) / (1024 ** 2)
@@ -420,21 +480,22 @@ def calculate_model_metrics(model):
         'modelSize': round(size_mb, 2)
     }
 
+
 @app.post("/models/build")
 async def build_model(config: ModelConfig):
     try:
-        # Create model
         model = create_model(config)
-        
-        # Calculate metrics
         metrics = calculate_model_metrics(model)
-        
-        # Generate model ID
         model_id = f"model_{uuid.uuid4().hex[:8]}"
         
-        # Save model
-        model_path = f"models/{model_id}.pth"
-        torch.save(model.state_dict(), model_path)
+        # Save model to buffer
+        model_buffer = io.BytesIO()
+        torch.save(model.state_dict(), model_buffer)
+        model_buffer.seek(0)
+        
+        # Upload to Vercel Blob
+        model_filename = f"models/{model_id}.pth"
+        blob_response = await upload_to_vercel_blob(model_buffer.getvalue(), model_filename)
         
         return {
             "success": True,
@@ -444,22 +505,17 @@ async def build_model(config: ModelConfig):
             "architecture": config.architecture,
             "activationFunction": config.activation_function,
             "optimizer": config.optimizer,
-            "learningRate": config.learning_rate
+            "learningRate": config.learning_rate,
+            "modelUrl": blob_response.get("url")
         }
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.get("/models/{model_id}")
 async def get_model_info(model_id: str):
     try:
-        model_path = f"/tmp/{model_id}.pth"
-        
-        if not os.path.exists(model_path):
-            raise HTTPException(status_code=404, detail="Model not found")
-        
-        # Load model and get info
-        # This is simplified - in production you'd store metadata separately
         return {
             "success": True,
             "modelId": model_id,
@@ -469,21 +525,19 @@ async def get_model_info(model_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.get("/models")
 async def list_models():
     try:
-        # List all saved models
-        import os
-        model_files = [f for f in os.listdir("/tmp") if f.startswith("model_") and f.endswith(".pth")]
-        
         models = []
-        for model_file in model_files:
-            model_id = model_file.replace(".pth", "")
-            models.append({
-                "id": model_id,
-                "status": "ready",
-                "createdAt": datetime.now().isoformat()
-            })
+        for job_id, job_data in active_jobs.items():
+            if job_data.get("status") == "completed" and job_data.get("model_url"):
+                models.append({
+                    "id": job_id,
+                    "status": "ready",
+                    "modelUrl": job_data.get("model_url"),
+                    "createdAt": job_data.get("completed_at", datetime.now().isoformat())
+                })
         
         return {
             "success": True,

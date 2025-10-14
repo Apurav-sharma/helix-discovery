@@ -45,14 +45,11 @@ const HelixDiscovery = () => {
 // Sidebar Component
 const Sidebar = ({ currentPage, setCurrentPage, isOpen, toggleSidebar }) => {
   const menuItems = [
-    { id: 'home', icon: Home, label: 'Home' },
     { id: 'dashboard', icon: Layout, label: 'Dashboard' },
     { id: 'models', icon: Brain, label: 'Model Builder' },
     { id: 'training', icon: Activity, label: 'Training' },
     { id: 'library', icon: Database, label: 'Model Library' },
-    { id: 'pipelines', icon: GitBranch, label: 'Pipelines' },
     { id: 'data', icon: FileText, label: 'Data Management' },
-    { id: 'settings', icon: Settings, label: 'Settings' }
   ];
 
   return (

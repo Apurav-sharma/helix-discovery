@@ -17,7 +17,7 @@ export async function POST(request) {
         const pythonFormData = new FormData();
         pythonFormData.append('file', file);
 
-        const response = await fetch('https://helix-discovery-2.onrender.com/upload', {
+        const response = await fetch('http://localhost:8000/upload', {
             method: 'POST',
             body: pythonFormData
         });
