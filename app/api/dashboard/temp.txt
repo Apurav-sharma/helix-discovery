@@ -1,9 +1,0 @@
-create these backend files but not connect it to database
-i will choose mongodb as database later not now till now i only have to implement the functionlaity to show as of now but later will connect it to db
-i ahve only crated the frontend page in page.js only
-code of the backend 
-do not write too big code
-
-in nextjs only 
-i have api folder inside i will put the api code
-start with the models api give code of that only
