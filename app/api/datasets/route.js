@@ -1,79 +1,42 @@
 // app/api/datasets/route.js
 import { NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
-
-// Mock data storage (will be replaced with MongoDB later)
-let datasets = [
-    {
-        id: '1',
-        name: 'Clinical Trial Dataset 2024',
-        type: 'CSV',
-        size: '2.4 GB',
-        records: '1.2M',
-        status: 'Active',
-        filePath: '/datasets/clinical_trial_2024.csv',
-        uploadedAt: new Date('2024-09-15'),
-        updatedAt: new Date('2024-09-15')
-    },
-    {
-        id: '2',
-        name: 'Genomic Sequences (VCF)',
-        type: 'VCF',
-        size: '5.7 GB',
-        records: '450K',
-        status: 'Active',
-        filePath: '/datasets/genomic_sequences.vcf',
-        uploadedAt: new Date('2024-09-20'),
-        updatedAt: new Date('2024-09-20')
-    },
-    {
-        id: '3',
-        name: 'Drug Compound Library',
-        type: 'JSON',
-        size: '890 MB',
-        records: '87K',
-        status: 'Active',
-        filePath: '/datasets/drug_compounds.json',
-        uploadedAt: new Date('2024-10-01'),
-        updatedAt: new Date('2024-10-01')
-    }
-];
+import { put, del } from '@vercel/blob';
+import connectDB from '@/database/connection';
+import Dataset from '@/models/Dataset';
 
 // GET - Fetch all datasets
 export async function GET(request) {
     try {
+        await connectDB();
+
         const { searchParams } = new URL(request.url);
         const type = searchParams.get('type');
         const status = searchParams.get('status');
         const search = searchParams.get('search');
 
-        let filteredDatasets = [...datasets];
+        let query = {};
 
-        // Filter by type
         if (type && type !== 'all') {
-            filteredDatasets = filteredDatasets.filter(d => d.type === type);
+            query.type = type;
         }
 
-        // Filter by status
         if (status && status !== 'all') {
-            filteredDatasets = filteredDatasets.filter(d => d.status === status);
+            query.status = status;
         }
 
-        // Search by name
         if (search) {
-            filteredDatasets = filteredDatasets.filter(d =>
-                d.name.toLowerCase().includes(search.toLowerCase())
-            );
+            query.name = { $regex: search, $options: 'i' };
         }
+
+        const datasets = await Dataset.find(query).sort({ createdAt: -1 });
 
         return NextResponse.json({
             success: true,
-            count: filteredDatasets.length,
-            data: filteredDatasets
+            count: datasets.length,
+            data: datasets
         });
     } catch (error) {
+        console.error('GET /api/datasets error:', error);
         return NextResponse.json(
             { success: false, error: error.message },
             { status: 500 }
@@ -84,6 +47,8 @@ export async function GET(request) {
 // POST - Upload new dataset
 export async function POST(request) {
     try {
+        await connectDB();
+
         const formData = await request.formData();
         const file = formData.get('file');
 
@@ -94,55 +59,46 @@ export async function POST(request) {
             );
         }
 
-        // Get file details
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-
-        // Create datasets directory if it doesn't exist
-        const uploadsDir = path.join(process.cwd(), 'public', 'datasets');
-        if (!existsSync(uploadsDir)) {
-            await mkdir(uploadsDir, { recursive: true });
-        }
-
-        // Generate unique filename
-        const timestamp = Date.now();
         const originalName = file.name;
-        const fileExt = path.extname(originalName);
-        const fileName = `${timestamp}_${originalName}`;
-        const filePath = path.join(uploadsDir, fileName);
+        const fileExt = originalName.substring(originalName.lastIndexOf('.'));
+        const timestamp = Date.now();
+        const fileName = `datasets/${timestamp}_${originalName}`;
 
-        // Save file
-        await writeFile(filePath, buffer);
+        // Upload to Vercel Blob Storage
+        const blob = await put(fileName, file, {
+            access: 'public',
+            token: "apurav_READ_WRITE_TOKEN",
+        });
 
         // Determine file type
         const fileType = fileExt.toUpperCase().replace('.', '');
 
         // Calculate file size
-        const fileSizeInMB = (buffer.length / (1024 * 1024)).toFixed(2);
+        const fileSizeInMB = (file.size / (1024 * 1024)).toFixed(2);
         const fileSize = fileSizeInMB > 1024
             ? `${(fileSizeInMB / 1024).toFixed(2)} GB`
             : `${fileSizeInMB} MB`;
 
-        // Create dataset record
-        const newDataset = {
-            id: String(datasets.length + 1),
+        // Create dataset record in MongoDB
+        const newDataset = await Dataset.create({
             name: originalName.replace(fileExt, ''),
             type: fileType,
             size: fileSize,
-            records: '0', // Will be calculated based on file content later
+            records: '0',
             status: 'Processing',
-            filePath: `/datasets/${fileName}`,
-            uploadedAt: new Date(),
-            updatedAt: new Date()
-        };
+            filePath: blob.url,
+            blobUrl: blob.url,
+        });
 
-        datasets.push(newDataset);
-
-        // Simulate processing completion after 2 seconds
-        setTimeout(() => {
-            const datasetIndex = datasets.findIndex(d => d.id === newDataset.id);
-            if (datasetIndex !== -1) {
-                datasets[datasetIndex].status = 'Active';
+        // Simulate processing completion
+        setTimeout(async () => {
+            try {
+                await connectDB();
+                await Dataset.findByIdAndUpdate(newDataset._id, {
+                    status: 'Active'
+                });
+            } catch (error) {
+                console.error('Error updating dataset status:', error);
             }
         }, 2000);
 
@@ -152,6 +108,7 @@ export async function POST(request) {
             data: newDataset
         }, { status: 201 });
     } catch (error) {
+        console.error('POST /api/datasets error:', error);
         return NextResponse.json(
             { success: false, error: error.message },
             { status: 400 }
@@ -162,30 +119,38 @@ export async function POST(request) {
 // PUT - Update dataset metadata
 export async function PUT(request) {
     try {
+        await connectDB();
+
         const body = await request.json();
         const { id, ...updates } = body;
 
-        const datasetIndex = datasets.findIndex(d => d.id === id);
+        if (!id) {
+            return NextResponse.json(
+                { success: false, error: 'Dataset ID is required' },
+                { status: 400 }
+            );
+        }
 
-        if (datasetIndex === -1) {
+        const updatedDataset = await Dataset.findByIdAndUpdate(
+            id,
+            { ...updates, updatedAt: new Date() },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedDataset) {
             return NextResponse.json(
                 { success: false, error: 'Dataset not found' },
                 { status: 404 }
             );
         }
 
-        datasets[datasetIndex] = {
-            ...datasets[datasetIndex],
-            ...updates,
-            updatedAt: new Date()
-        };
-
         return NextResponse.json({
             success: true,
             message: 'Dataset updated successfully',
-            data: datasets[datasetIndex]
+            data: updatedDataset
         });
     } catch (error) {
+        console.error('PUT /api/datasets error:', error);
         return NextResponse.json(
             { success: false, error: error.message },
             { status: 400 }
@@ -196,30 +161,47 @@ export async function PUT(request) {
 // DELETE - Delete dataset
 export async function DELETE(request) {
     try {
+        await connectDB();
+
         const { searchParams } = new URL(request.url);
         const id = searchParams.get('id');
 
-        const datasetIndex = datasets.findIndex(d => d.id === id);
+        if (!id) {
+            return NextResponse.json(
+                { success: false, error: 'Dataset ID is required' },
+                { status: 400 }
+            );
+        }
 
-        if (datasetIndex === -1) {
+        const dataset = await Dataset.findById(id);
+
+        if (!dataset) {
             return NextResponse.json(
                 { success: false, error: 'Dataset not found' },
                 { status: 404 }
             );
         }
 
-        const deletedDataset = datasets[datasetIndex];
+        // Delete from Vercel Blob Storage
+        if (dataset.blobUrl) {
+            try {
+                await del(dataset.blobUrl);
+            } catch (blobError) {
+                console.error('Error deleting blob:', blobError);
+                // Continue with database deletion even if blob deletion fails
+            }
+        }
 
-        // Note: File deletion from public/datasets folder can be added here later
-        // For now, just remove from array
-        datasets = datasets.filter(d => d.id !== id);
+        // Delete from database
+        await Dataset.findByIdAndDelete(id);
 
         return NextResponse.json({
             success: true,
             message: 'Dataset deleted successfully',
-            data: deletedDataset
+            data: dataset
         });
     } catch (error) {
+        console.error('DELETE /api/datasets error:', error);
         return NextResponse.json(
             { success: false, error: error.message },
             { status: 400 }
