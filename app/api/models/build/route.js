@@ -7,7 +7,7 @@ export async function POST(request) {
         const { modelType, architecture, activationFunction, optimizer, learningRate } = body;
 
         // Forward to Python service
-        const response = await fetch('http://localhost:8000/models/build', {
+        const response = await fetch('https://helix-discovery-2.onrender.com/models/build', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

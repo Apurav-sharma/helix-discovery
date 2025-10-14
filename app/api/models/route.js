@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 export async function GET() {
     try {
         // Forward to Python service
-        const response = await fetch('http://localhost:8000/models');
+        const response = await fetch('https://helix-discovery-2.onrender.com/models');
         const data = await response.json();
 
         return NextResponse.json(data);
