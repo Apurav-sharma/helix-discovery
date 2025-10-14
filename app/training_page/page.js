@@ -27,7 +27,7 @@ const TrainingPage = () => {
                 if (data.success) {
                     setProgress(data.data);
 
-                    // console.log(data.data);
+                    console.log(data.data);
 
                     // Stop polling if completed or failed
                     if (data.data.status === 'completed' || data.data.status === 'failed') {
@@ -51,7 +51,7 @@ const TrainingPage = () => {
             const formData = new FormData();
             formData.append('file', file);
 
-            const res = await fetch('/api/training/upload', {
+            const res = await fetch('/api/datasets', {
                 method: 'POST',
                 body: formData
             });
@@ -87,6 +87,7 @@ const TrainingPage = () => {
                 },
                 body: JSON.stringify({
                     datasetId: uploadedDataset._id,
+                    dataset_url: uploadedDataset.filePath,
                     ...config
                 })
             });

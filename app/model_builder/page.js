@@ -44,6 +44,8 @@ const ModelsPage = () => {
                 throw new Error(data.error || data.detail || 'Failed to build model');
             }
 
+            console.log(data.modelUrl);
+
             setModelMetrics({
                 totalParameters: data.metrics.totalParameters,
                 trainableParameters: data.metrics.trainableParameters,
@@ -65,9 +67,7 @@ const ModelsPage = () => {
             <div className="max-w-7xl mx-auto">
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-4xl font-bold text-white">Model Builder</h1>
-                    <button className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-indigo-500/50 transition-all">
-                        + Create New Model
-                    </button>
+                    
                 </div>
 
                 {/* Status Messages */}

@@ -4,6 +4,7 @@ import { Activity, Beaker, Brain, Database, FileText, GitBranch, Home, Layout, L
 import DataPage from './datapage/page';
 import ModelsPage from "./model_builder/page";
 import TrainingPage from './training_page/page';
+import LibraryPage from './model_lib/page';
 
 // Main App Component with Router
 const HelixDiscovery = () => {
@@ -11,7 +12,7 @@ const HelixDiscovery = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const pages = {
-    home: <HomePage />,
+    home: <HomePage setCurrentPage={setCurrentPage} />,
     dashboard: <DashboardPage />,
     models: <ModelsPage />,
     training: <TrainingPage />,
@@ -45,7 +46,7 @@ const HelixDiscovery = () => {
 // Sidebar Component
 const Sidebar = ({ currentPage, setCurrentPage, isOpen, toggleSidebar }) => {
   const menuItems = [
-    { id: 'dashboard', icon: Layout, label: 'Dashboard' },
+    // { id: 'dashboard', icon: Layout, label: 'Dashboard' },
     { id: 'models', icon: Brain, label: 'Model Builder' },
     { id: 'training', icon: Activity, label: 'Training' },
     { id: 'library', icon: Database, label: 'Model Library' },
@@ -68,8 +69,8 @@ const Sidebar = ({ currentPage, setCurrentPage, isOpen, toggleSidebar }) => {
               key={item.id}
               onClick={() => setCurrentPage(item.id)}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${currentPage === item.id
-                  ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/50'
-                  : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/50'
+                : 'text-slate-400 hover:bg-slate-800 hover:text-white'
                 }`}
             >
               <item.icon className="w-5 h-5 flex-shrink-0" />
@@ -118,9 +119,7 @@ const Header = ({ toggleSidebar }) => {
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
             <span className="text-sm text-green-400 font-medium">System Healthy</span>
           </div>
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center text-white font-bold">
-            JD
-          </div>
+          
         </div>
       </div>
     </header>
@@ -128,7 +127,12 @@ const Header = ({ toggleSidebar }) => {
 };
 
 // Home Page
-const HomePage = () => {
+const HomePage = ({ setCurrentPage }) => {
+
+  const move = () => {
+    setCurrentPage("models");
+  }
+
   return (
     <div className="p-8">
       <div className="max-w-7xl mx-auto">
@@ -142,7 +146,7 @@ const HomePage = () => {
             pre-trained biomedical models, and automated pipelines to revolutionize pharmaceutical development.
           </p>
           <div className="flex justify-center space-x-4">
-            <button className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-indigo-500/50 transition-all">
+            <button onClick={move} className="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-indigo-500/50 transition-all">
               Get Started
             </button>
             <button className="px-8 py-4 bg-slate-800 border border-slate-700 rounded-lg text-white font-semibold hover:bg-slate-700 transition-all">
@@ -165,21 +169,9 @@ const HomePage = () => {
             description="Create end-to-end workflows with our drag-and-drop pipeline builder"
             color="from-purple-500 to-pink-500"
           />
-          <FeatureCard
-            icon={Lock}
-            title="HIPAA Compliant"
-            description="Enterprise-grade security with HIPAA, GDPR, and NDPR compliance"
-            color="from-green-500 to-emerald-500"
-          />
         </div>
 
         {/* Stats Section */}
-        <div className="grid grid-cols-4 gap-6 mb-16">
-          <StatCard value="150+" label="Pre-trained Models" />
-          <StatCard value="99.9%" label="Uptime SLA" />
-          <StatCard value="50M+" label="Data Points Processed" />
-          <StatCard value="24/7" label="Support Available" />
-        </div>
 
         {/* Use Cases */}
         <div className="bg-slate-900/50 backdrop-blur-xl border border-indigo-500/20 rounded-2xl p-8">
@@ -458,61 +450,61 @@ const DashboardPage = () => {
 // Library Page
 
 
-const LibraryPage = () => {
-  const models = [
-    { name: "Protein Folding Predictor", domain: "Structural Biology", accuracy: "96.4%", format: "ONNX" },
-    { name: "Drug-Target Interaction", domain: "Pharmacology", accuracy: "93.2%", format: "ONNX" },
-    { name: "Compound Toxicity Classifier", domain: "Safety", accuracy: "89.7%", format: "ONNX" },
-    { name: "Genomic Variant Predictor", domain: "Genomics", accuracy: "95.1%", format: "ONNX" },
-    { name: "Molecular Property Estimator", domain: "Chemistry", accuracy: "91.3%", format: "ONNX" },
-    { name: "Clinical Trial Outcome Predictor", domain: "Clinical", accuracy: "87.9%", format: "ONNX" }
-  ];
+// const LibraryPage = () => {
+//   const models = [
+//     { name: "Protein Folding Predictor", domain: "Structural Biology", accuracy: "96.4%", format: "ONNX" },
+//     { name: "Drug-Target Interaction", domain: "Pharmacology", accuracy: "93.2%", format: "ONNX" },
+//     { name: "Compound Toxicity Classifier", domain: "Safety", accuracy: "89.7%", format: "ONNX" },
+//     { name: "Genomic Variant Predictor", domain: "Genomics", accuracy: "95.1%", format: "ONNX" },
+//     { name: "Molecular Property Estimator", domain: "Chemistry", accuracy: "91.3%", format: "ONNX" },
+//     { name: "Clinical Trial Outcome Predictor", domain: "Clinical", accuracy: "87.9%", format: "ONNX" }
+//   ];
 
-  return (
-    <div className="p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-white">Pre-Trained Model Library</h1>
-          <div className="flex space-x-3">
-            <select className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500">
-              <option>All Domains</option>
-              <option>Structural Biology</option>
-              <option>Pharmacology</option>
-              <option>Genomics</option>
-            </select>
-          </div>
-        </div>
+//   return (
+//     <div className="p-8">
+//       <div className="max-w-7xl mx-auto">
+//         <div className="flex justify-between items-center mb-8">
+//           <h1 className="text-4xl font-bold text-white">Pre-Trained Model Library</h1>
+//           <div className="flex space-x-3">
+//             <select className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-indigo-500">
+//               <option>All Domains</option>
+//               <option>Structural Biology</option>
+//               <option>Pharmacology</option>
+//               <option>Genomics</option>
+//             </select>
+//           </div>
+//         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {models.map((model, idx) => (
-            <div key={idx} className="bg-slate-900/50 backdrop-blur-xl border border-indigo-500/20 rounded-2xl p-6 hover:border-indigo-500 transition-all">
-              <div className="flex items-start justify-between mb-4">
-                <Database className="w-10 h-10 text-indigo-400" />
-                <span className="px-3 py-1 bg-green-500/20 border border-green-500/50 rounded-full text-xs text-green-400">
-                  {model.format}
-                </span>
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-2">{model.name}</h3>
-              <p className="text-slate-400 text-sm mb-4">{model.domain}</p>
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-sm text-slate-400">Accuracy</span>
-                <span className="text-lg font-bold text-indigo-400">{model.accuracy}</span>
-              </div>
-              <div className="flex space-x-2">
-                <button className="flex-1 px-4 py-2 bg-indigo-600 rounded-lg text-white text-sm font-semibold hover:bg-indigo-700 transition-all">
-                  Apply Model
-                </button>
-                <button className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm hover:bg-slate-700 transition-all">
-                  Fine-tune
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
+//         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+//           {models.map((model, idx) => (
+//             <div key={idx} className="bg-slate-900/50 backdrop-blur-xl border border-indigo-500/20 rounded-2xl p-6 hover:border-indigo-500 transition-all">
+//               <div className="flex items-start justify-between mb-4">
+//                 <Database className="w-10 h-10 text-indigo-400" />
+//                 <span className="px-3 py-1 bg-green-500/20 border border-green-500/50 rounded-full text-xs text-green-400">
+//                   {model.format}
+//                 </span>
+//               </div>
+//               <h3 className="text-xl font-semibold text-white mb-2">{model.name}</h3>
+//               <p className="text-slate-400 text-sm mb-4">{model.domain}</p>
+//               <div className="flex justify-between items-center mb-4">
+//                 <span className="text-sm text-slate-400">Accuracy</span>
+//                 <span className="text-lg font-bold text-indigo-400">{model.accuracy}</span>
+//               </div>
+//               <div className="flex space-x-2">
+//                 <button className="flex-1 px-4 py-2 bg-indigo-600 rounded-lg text-white text-sm font-semibold hover:bg-indigo-700 transition-all">
+//                   Apply Model
+//                 </button>
+//                 <button className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm hover:bg-slate-700 transition-all">
+//                   Fine-tune
+//                 </button>
+//               </div>
+//             </div>
+//           ))}
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
 
 // Pipelines Page
 const PipelinesPage = () => {
@@ -878,8 +870,8 @@ const JobItem = ({ name, status, progress }) => (
     <div className="flex justify-between items-center mb-2">
       <span className="text-white font-medium">{name}</span>
       <span className={`text-xs px-2 py-1 rounded-full ${status === 'Running' ? 'bg-blue-500/20 text-blue-400' :
-          status === 'Completed' ? 'bg-green-500/20 text-green-400' :
-            'bg-slate-500/20 text-slate-400'
+        status === 'Completed' ? 'bg-green-500/20 text-green-400' :
+          'bg-slate-500/20 text-slate-400'
         }`}>
         {status}
       </span>
@@ -912,7 +904,7 @@ const PipelineItem = ({ name, status, progress }) => (
     <div className="flex justify-between items-center mb-2">
       <span className="text-white font-medium">{name}</span>
       <span className={`text-xs px-2 py-1 rounded-full ${status === 'Running' ? 'bg-blue-500/20 text-blue-400' :
-          'bg-green-500/20 text-green-400'
+        'bg-green-500/20 text-green-400'
         }`}>
         {status}
       </span>

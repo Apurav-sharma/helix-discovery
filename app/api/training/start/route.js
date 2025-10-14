@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 export async function POST(request) {
     try {
         const body = await request.json();
-        const { datasetId, epochs, batchSize, validationSplit, gpuEnabled } = body;
+        const { datasetId, dataset_url, epochs, batchSize, validationSplit, gpuEnabled } = body;
 
         // Forward to Python service
         const response = await fetch('http://localhost:8000/train', {
@@ -14,6 +14,7 @@ export async function POST(request) {
             },
             body: JSON.stringify({
                 dataset_id: datasetId,
+                dataset_url: dataset_url,
                 epochs: epochs || 100,
                 batch_size: batchSize || 32,
                 validation_split: validationSplit || 0.2,

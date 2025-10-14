@@ -205,7 +205,7 @@ async def train_model(job_id: str, config: TrainingConfig):
         
         # Load dataset
         df = pd.read_csv(io.BytesIO(dataset_content))
-        print(df.head())
+        # print(df.head())
 
         # Basic sanity checks
         if df.shape[0] == 0:
@@ -358,6 +358,7 @@ async def train_model(job_id: str, config: TrainingConfig):
         model_blob = await upload_to_vercel_blob(model_buffer.getvalue(), model_filename)
         
         active_jobs[job_id]["model_url"] = model_blob.get("url")
+        print(f"Model uploaded to {model_blob.get('url')}")
 
         return {"status": "ok", "model_url": model_blob.get("url")}
 
